@@ -8,6 +8,20 @@ a {
 }
 
 
+table {
+    margin: 0 auto;
+}
+td {
+    font-size: 29px;
+    color: black;
+    width: 50px;
+    height: 50px;
+    padding: 20px;
+    text-align: center;
+    border-collapse: collapse;
+    border: 3px solid black;
+}
+
 .hidden {
   display: none;
 }

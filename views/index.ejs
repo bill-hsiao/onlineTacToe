@@ -7,20 +7,37 @@
   <body>
     <h1><%= title %></h1>
     <p>Browserify with Socket.io Boilerplate</p>
-
-    <div>Name: </div>
-    <br>
-    
-
-
     <div id="root">
-      <div id="name_form">
-        Enter desired username
-        <br>
-        <input type="text" id="name_field">
-        <br>
-        <input type="submit" id="name_submit">
+    <div id="name_output">
+      Name:
+      <span id="name_output_line"></span>
+    </div>
+      <div id="name_input">
+        <input type="text" id="name_input_field">
+        <input type="submit" id="name_input_submit">
       </div>
+
+      <div id="game_area">
+        <table>
+          <tr>
+            <td id="0"></td>
+            <td id="1"></td>
+            <td id="2"></td>
+          </tr>
+          <tr>
+            <td id="3"></td>
+            <td id="4"></td>
+            <td id="5"></td>
+          </tr>
+          <tr>
+            <td id="6"></td>
+            <td id="7"></td>
+            <td id="8"></td>
+          </tr>
+        </table>
+      </div>
+
+    </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="./js/bundle.js"></script>

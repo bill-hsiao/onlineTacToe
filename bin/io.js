@@ -6,11 +6,11 @@ function controller(io, data) {
 
   function onConnect(client) {
     client.on('newUser', newConnect);
-    client.on('discconect', onDisconnect)
+    client.on('disconnect', onDisconnect)
   }
 
-  function onDisconnect(userId) {
-    console.log(`client ${userId} has disconnected`);
+  function onDisconnect(client) {
+    console.log(`client ${client} has disconnected`);
   }
 
   function newConnect(userId) {

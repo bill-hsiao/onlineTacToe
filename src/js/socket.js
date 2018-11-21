@@ -1,7 +1,19 @@
+var User = require('./User.js');
+
+
+///fix this later
+function client(argument) {
+  const user = new User(argument);
+  return user
+}
+///////
+
+
+
 function controller(socket) {
 
   function init() {
-    socket = io.connect('http://localhost:4000');
+    socket = io.connect('http://localhost:1234');
     connect(socket);
   }
 
@@ -13,21 +25,25 @@ function controller(socket) {
   }
 
   function onConnect() {
-    let userId = socket.id;
-    if (!userId) {
+    let user = client(socket.id);
+    if (!user.id) {
       return
     }
-    socket.emit('newUser', userId);
+    console.log(user);
+    socket.emit('newUser', user.id);
+    console.log('from onConnect function');
   }
-
+/////fixxx
   function onDisconnect() {
-    let userId = socket.id;
-    this.broadcast.emit(userId);
-    this.emit('disconnect', userId)
+    let user = client(socket.id);
+    socket.emit('leave', user.id);
+    socket.emit('disconnect', user.id)
   }
-
-  function newPlayer(userId) {
-    console.log(userId.id);
+//////fix
+  function newPlayer(user) {
+    console.log(user);
+    //player.setId(user.id)
+    //console.log(player.id);
   }
 
 
@@ -35,8 +51,9 @@ function controller(socket) {
   return {
     init: init,
     onConnect: onConnect,
-    newPlayer: newPlayer,
     onDisconnect: onDisconnect
+    //newPlayer: newPlayer
+
   }
 }
 
