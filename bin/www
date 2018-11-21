@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+const app = require('../app')
+const debug = require('debug')('test:server')
+const http = require('http').Server(app)
+const _io = require('socket.io')(http)
+const io = require('./io')
+const port = process.env.PORT
+
+const socket = {
+  io
+}
+
+
+app.set('port', port);
+
+ http.listen(port, function(){
+   console.log('listening on *:' + port);
+   init();
+ });
+
+function init() {
+  socket.io = io(_io)
+  socket.io.init()
+}
