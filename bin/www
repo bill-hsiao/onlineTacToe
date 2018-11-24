@@ -1,28 +1,28 @@
 #!/usr/bin/env node
 
-const app = require('../app').app
+const app = require('../app')
 const debug = require('debug')('test:server')
-//const http = require('http').Server(app.http)
-const http = require('../app').http
-//const _io = require('socket.io')(http)
-// const io = require('../game/io')
+const http = require('http').Server(app)
+// const http = require('../app').http
+const _io = require('socket.io')(http)
+const io = require('../game/io')
 const port = process.env.PORT
 
-// const socket = {
-//   io
-// }
-//
+const socket = {
+  io
+}
+
 
 app.set('port', port);
 
  http.listen(port, function(){
    console.log('listening on *:' + port);
-   // init();
-   app.use['io'];
+   init();
+   // app.use['io'];
    app.use['io.init']
  });
 
-// function init() {
-//   socket.io = io(_io)
-//   socket.io.init()
-// }
+function init() {
+  socket.io = io(_io)
+  socket.io.init()
+}

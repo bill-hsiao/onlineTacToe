@@ -9,11 +9,11 @@ const routes = require('./routes/router');
 // var users = require('./routes/users');
 
 const app = express();
-const http = require('http').Server(app);
+// const http = require('http').Server(app);
 //const _io = require('socket.io')(http)
 
-const _io = require('socket.io')(http);
-const io = require('./game/io')
+// const _io = require('socket.io')(http);
+// const io = require('./game/io')
 
 
 // view engine setup
@@ -30,7 +30,7 @@ app.use(express.static(path.join(__dirname, 'src')));
 
 app.use('/', routes);
 //app.set('io', io(_io));
-app.set('io', io(_io).init())
+// app.set('io', io(_io).init())
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -50,4 +50,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-module.exports = {app: app, http: http};
+module.exports = app;

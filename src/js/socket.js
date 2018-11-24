@@ -5,7 +5,7 @@ const user = require('./User.js')();
 function controller(socket, data) {
 
   function init() {
-    socket = io.connect('http://localhost:1234');
+    //socket = io.connect('http://localhost:1234');
 
     connect(socket);
   }
@@ -40,7 +40,7 @@ function controller(socket, data) {
     console.log(user.id);
     socket.emit(user.id)
     socket.emit('userLeave');
-    //socket.emit('disconnect')
+    socket.emit('disconnect')
   }
 //////fix
   function newPlayer(user) {

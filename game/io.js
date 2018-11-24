@@ -10,7 +10,7 @@ function controller(io, data) {
   function onConnect(client) {
     client.on('newUser', newConnect);
     client.on('disconnect', clientLeave);
-    client.on('userLeave', clientLeave);
+    // client.on('userLeave', clientLeave);
     client.on('sendName', setName);
   }
 
@@ -21,8 +21,12 @@ function controller(io, data) {
     game.pushPlayer(userId);
   }
   function clientLeave(client) {
-    console.log(client);
-    console.log(Object.keys(io.engine.clients));
+    //console.log(client);
+    let list = Object.keys(io.engine.clients);
+    //console.log(list);
+    //console.log(Object.keys(io.engine.clients));
+    console.log(list);
+    game.updatePlayer(list);
 
   }
 

@@ -28,13 +28,19 @@ class State {
   constructor() {
     this.client = null;
     this.opponent = null;
+    this.game = [];
   }
+
   addPlayer(playerId) {
     this.client = playerId
   }
+
   addOpponent(opponentId) {
     this.opponent = opponentId
   }
+
+
+
 }
 
 function stateInstance() {
@@ -100,7 +106,7 @@ const user = require('./User.js')();
 function controller(socket, data) {
 
   function init() {
-    socket = io.connect('http://localhost:1234');
+    //socket = io.connect('http://localhost:1234');
 
     connect(socket);
   }
@@ -135,7 +141,7 @@ function controller(socket, data) {
     console.log(user.id);
     socket.emit(user.id)
     socket.emit('userLeave');
-    //socket.emit('disconnect')
+    socket.emit('disconnect')
   }
 //////fix
   function newPlayer(user) {
