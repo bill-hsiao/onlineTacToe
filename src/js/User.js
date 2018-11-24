@@ -16,7 +16,8 @@ class User {
 }
 
 function newUser(userId) {
-  return new User(userId)
+  const user = new User(userId)
+  return user
 }
 
 module.exports = newUser;

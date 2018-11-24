@@ -17,15 +17,40 @@ class User {
 }
 
 function newUser(userId) {
-  return new User(userId)
+  const user = new User(userId)
+  return user
 }
 
 module.exports = newUser;
 
 },{}],2:[function(require,module,exports){
-var socket = io.connect('http://localhost:1234');
-var app = require('./socket.js')(socket);
-app.init(socket);
+class State {
+  constructor() {
+    this.client = null;
+    this.opponent = null;
+  }
+  addPlayer(playerId) {
+    this.client = playerId
+  }
+  addOpponent(opponentId) {
+    this.opponent = opponentId
+  }
+}
+
+function stateInstance() {
+  const state = new State;
+  return state
+}
+
+module.exports = stateInstance;
+
+},{}],3:[function(require,module,exports){
+const socket = io.connect('http://localhost:1234');
+const app = require('./socket.js')(socket);
+
+
+
+app.init();
 
 
 
@@ -40,7 +65,9 @@ app.init(socket);
     }
     display.value = string;
     display.line.textContent = display.value;
+    app.sendName(string);
     return display.value
+
   }
 
   (function () {
@@ -65,23 +92,16 @@ app.init(socket);
   })();
 })();
 
-},{"./socket.js":3}],3:[function(require,module,exports){
-var User = require('./User.js');
+},{"./socket.js":4}],4:[function(require,module,exports){
+const state = require('./clientState')();
+const user = require('./User.js')();
 
 
-///fix this later
-function client(argument) {
-  const user = new User(argument);
-  return user
-}
-///////
-
-
-
-function controller(socket) {
+function controller(socket, data) {
 
   function init() {
     socket = io.connect('http://localhost:1234');
+
     connect(socket);
   }
 
@@ -90,28 +110,57 @@ function controller(socket) {
     socket.on('disconnect', onDisconnect);
     socket.on('newPlayer', newPlayer);
     socket.on('receiveUserId', newPlayer);
+
+    //name moves/controllers
+    socket.on('sendName', sendName);
+    socket.on('setName', setName);
+
+    socket.on('receiveOpponent', receiveOpponent);
+    //game moves/controllers
+    socket.on('sendMove', sendMove);
+
+
   }
 
   function onConnect() {
-    let user = client(socket.id);
-    if (!user.id) {
+    if (!socket.id) {
       return
     }
-    console.log(user);
-    socket.emit('newUser', user.id);
-    console.log('from onConnect function');
+    socket.emit('newUser', socket.id);
+  //  socket.on('disconnect', onDisconnect);
   }
 /////fixxx
   function onDisconnect() {
-    let user = client(socket.id);
-    socket.emit('leave', user.id);
-    socket.emit('disconnect', user.id)
+    //let user = client(socket.id);
+    console.log(user.id);
+    socket.emit(user.id)
+    socket.emit('userLeave');
+    //socket.emit('disconnect')
   }
 //////fix
   function newPlayer(user) {
-    console.log(user);
-    //player.setId(user.id)
-    //console.log(player.id);
+    state.addPlayer(user.id)
+  }
+
+  function sendName(name) {
+    console.log(name);
+    socket.emit('sendName', {id: socket.id, name: name})
+  }
+
+  function setName(response) {
+    console.log(response);
+    user.setName(response.name)
+  }
+
+  function receiveOpponent() {
+
+  }
+
+  function sendMove() {
+
+  }
+  function updateMove() {
+
   }
 
 
@@ -119,7 +168,9 @@ function controller(socket) {
   return {
     init: init,
     onConnect: onConnect,
-    onDisconnect: onDisconnect
+    onDisconnect: onDisconnect,
+    sendName: sendName
+
     //newPlayer: newPlayer
 
   }
@@ -127,4 +178,4 @@ function controller(socket) {
 
 module.exports = controller;
 
-},{"./User.js":1}]},{},[2]);
+},{"./User.js":1,"./clientState":2}]},{},[3]);

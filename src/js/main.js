@@ -1,6 +1,9 @@
-var socket = io.connect('http://localhost:1234');
-var app = require('./socket.js')(socket);
-app.init(socket);
+const socket = io.connect('http://localhost:1234');
+const app = require('./socket.js')(socket);
+
+
+
+app.init();
 
 
 
@@ -15,7 +18,9 @@ app.init(socket);
     }
     display.value = string;
     display.line.textContent = display.value;
+    app.sendName(string);
     return display.value
+
   }
 
   (function () {
