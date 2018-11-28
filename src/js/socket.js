@@ -1,12 +1,13 @@
 const state = require('./clientState')();
 const user = require('./User.js')();
+const Client = require('./Client');
+const client = new Client
 
 
 function controller(socket, data) {
 
   function init() {
     //socket = io.connect('http://localhost:1234');
-
     connect(socket);
   }
 
@@ -15,7 +16,7 @@ function controller(socket, data) {
     socket.on('disconnect', onDisconnect);
     socket.on('newPlayer', newPlayer);
     socket.on('receiveUserId', newPlayer);
-
+    socket.on('turn', getLink);
     //name moves/controllers
     socket.on('sendName', sendName);
     socket.on('setName', setName);
@@ -33,6 +34,7 @@ function controller(socket, data) {
       return
     }
     socket.emit('newUser', socket.id);
+    client.setId(socket.id)
     socket.emit('clientReady', socket.id);
   //  socket.on('disconnect', onDisconnect);
   }
@@ -43,6 +45,12 @@ function controller(socket, data) {
     socket.emit('userLeave');
     socket.emit('disconnect')
   }
+
+  function getLink(turn) {
+    client.setTurn(turn.turn)
+
+  }
+
 //////fix
   function newPlayer(user) {
     state.addPlayer(user.id)
@@ -67,8 +75,10 @@ function controller(socket, data) {
     state.addOpponent(players.p1)
   }
 
-  function sendMove() {
-
+  function sendMove(idx) {
+    let idx1 = client.setMove(idx);
+    let turn = client.getTurn();
+    socket.emit('move', {idx: idx1, turn: turn})
   }
   function updateMove() {
 
@@ -80,6 +90,7 @@ function controller(socket, data) {
     init: init,
     onConnect: onConnect,
     onDisconnect: onDisconnect,
+    sendMove: sendMove,
     sendName: sendName
 
     //newPlayer: newPlayer

@@ -7,7 +7,13 @@ app.init();
 
 
 
+document.getElementById('game_area').addEventListener('click', getValue)
 
+function getValue(evt) {
+  let val = evt.target.id;
+  console.log(val);
+  app.sendMove(val);
+}
 
 
 (function name() {

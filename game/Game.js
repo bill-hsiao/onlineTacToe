@@ -1,58 +1,26 @@
 class Game {
-  constructor() {
-    this.currentPlayers = [];
-    this.players = {};
-    this.state = Array(9).fill(null);
+  constructor(p1, p2) {
+    this.p1 = p1;
+    this.p2 = p2;
     this.turn = 0;
+    this.state = [];
   }
-  pushPlayer(userId) {
-    this.currentPlayers.push(userId);
-    this.players[userId] = {
-      turn: this.turn,
-      name:""
-    }
-    this.turn ++ ;
-    this.turn = this.turn % 2;
-    //console.log(this.players[userId].turn);
+  newRound() {
+    this.state = Array(9).fill(null);
   }
-  updatePlayer(engineArray) {
-    let list = engineArray;
-    let disconnectedSocket = ""
-    //console.log(this.currentPlayers);
-    for (let i = 0; i <= this.currentPlayers.length; i ++) {
-      if (list[i] !== this.currentPlayers[i]) {
-        //console.log(this.currentPlayers);
-        disconnectedSocket = this.currentPlayers[i]
-        break;
-      }
-    }
-    delete this.players[disconnectedSocket]
-    //console.log(`${disconnectedSocket} has disconnected`);
-    this.currentPlayers = list;
-    //console.log(this.currentPlayers, this.players);
-  }
-  pushPlayerName(userId, name) {
-    this.players[userId].name = name;
-    console.log(this.players[userId].name);
-  }
-  makeMove(idx) {
-    if (typeof this.state[idx] === 'number') {
+  move(idx, turn) {
+    if (turn !== this.turn) {
       return
     } else {
-      this.state[idx] = (this.turn ? 1 : 0);
-      this.turn ++ ;
-      this.turn = this.turn % 2;
+      if (this.state[idx] !== null) {
+        return
+      } else {
+        this.turn = this.turn % 2;
+        this.state[idx] = turn
+        this.turn ++;
+      }
     }
   }
-  totalPlayers() {
-    let players = Object.keys(this.players)
-    return players
-  }
 }
 
-function gameInstance() {
-  const gameInstance = new Game
-  return gameInstance
-}
-
-module.exports = gameInstance
+module.exports = Game

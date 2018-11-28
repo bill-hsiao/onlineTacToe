@@ -1,4 +1,32 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+class Client {
+  constructor() {
+    this.id = "";
+    this.turn = null;
+    this.data = [];
+  }
+  setId(id) {
+    this.id = id
+    console.log(this.id);
+  }
+  setTurn(turn) {
+    this.turn = (turn ? 1 : 0)
+    console.log(this.turn);
+  }
+  getTurn() {
+    return this.turn
+  }
+  setMove(val) {
+    return val
+  }
+  updateBoard(idx, turn) {
+    this.data[idx] = turn
+  }
+}
+
+module.exports = Client;
+
+},{}],2:[function(require,module,exports){
 class User {
   constructor(userId) {
       this.id = userId;
@@ -23,7 +51,7 @@ function newUser(userId) {
 
 module.exports = newUser;
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 class State {
   constructor() {
     this.client = null;
@@ -54,7 +82,7 @@ function stateInstance() {
 
 module.exports = stateInstance;
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 const socket = io.connect('http://localhost:1234');
 const app = require('./socket.js')(socket);
 
@@ -64,7 +92,13 @@ app.init();
 
 
 
+document.getElementById('game_area').addEventListener('click', getValue)
 
+function getValue(evt) {
+  let val = evt.target.id;
+  console.log(val);
+  app.sendMove(val);
+}
 
 
 (function name() {
@@ -102,16 +136,17 @@ app.init();
   })();
 })();
 
-},{"./socket.js":4}],4:[function(require,module,exports){
+},{"./socket.js":5}],5:[function(require,module,exports){
 const state = require('./clientState')();
 const user = require('./User.js')();
+const Client = require('./Client');
+const client = new Client
 
 
 function controller(socket, data) {
 
   function init() {
     //socket = io.connect('http://localhost:1234');
-
     connect(socket);
   }
 
@@ -120,7 +155,7 @@ function controller(socket, data) {
     socket.on('disconnect', onDisconnect);
     socket.on('newPlayer', newPlayer);
     socket.on('receiveUserId', newPlayer);
-
+    socket.on('turn', getLink);
     //name moves/controllers
     socket.on('sendName', sendName);
     socket.on('setName', setName);
@@ -138,6 +173,7 @@ function controller(socket, data) {
       return
     }
     socket.emit('newUser', socket.id);
+    client.setId(socket.id)
     socket.emit('clientReady', socket.id);
   //  socket.on('disconnect', onDisconnect);
   }
@@ -148,6 +184,12 @@ function controller(socket, data) {
     socket.emit('userLeave');
     socket.emit('disconnect')
   }
+
+  function getLink(turn) {
+    client.setTurn(turn.turn)
+
+  }
+
 //////fix
   function newPlayer(user) {
     state.addPlayer(user.id)
@@ -172,8 +214,10 @@ function controller(socket, data) {
     state.addOpponent(players.p1)
   }
 
-  function sendMove() {
-
+  function sendMove(idx) {
+    let idx1 = client.setMove(idx);
+    let turn = client.getTurn();
+    socket.emit('move', {idx: idx1, turn: turn})
   }
   function updateMove() {
 
@@ -185,6 +229,7 @@ function controller(socket, data) {
     init: init,
     onConnect: onConnect,
     onDisconnect: onDisconnect,
+    sendMove: sendMove,
     sendName: sendName
 
     //newPlayer: newPlayer
@@ -194,4 +239,4 @@ function controller(socket, data) {
 
 module.exports = controller;
 
-},{"./User.js":1,"./clientState":2}]},{},[3]);
+},{"./Client":1,"./User.js":2,"./clientState":3}]},{},[4]);
