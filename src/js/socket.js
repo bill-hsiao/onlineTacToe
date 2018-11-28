@@ -20,7 +20,8 @@ function controller(socket, data) {
     socket.on('sendName', sendName);
     socket.on('setName', setName);
 
-    socket.on('receiveOpponent', receiveOpponent);
+    socket.on('playerOne', playerOne);
+    socket.on('playerTwo', playerTwo);
     //game moves/controllers
     socket.on('sendMove', sendMove);
 
@@ -32,13 +33,13 @@ function controller(socket, data) {
       return
     }
     socket.emit('newUser', socket.id);
+    socket.emit('clientReady', socket.id);
   //  socket.on('disconnect', onDisconnect);
   }
 /////fixxx
   function onDisconnect() {
     //let user = client(socket.id);
-    console.log(user.id);
-    socket.emit(user.id)
+
     socket.emit('userLeave');
     socket.emit('disconnect')
   }
@@ -57,8 +58,13 @@ function controller(socket, data) {
     user.setName(response.name)
   }
 
-  function receiveOpponent() {
-
+  function playerOne(players) {
+    state.addPlayer(players.p1)
+    state.addOpponent(players.p2)
+  }
+  function playerTwo(players) {
+    state.addPlayer(players.p2)
+    state.addOpponent(players.p1)
   }
 
   function sendMove() {

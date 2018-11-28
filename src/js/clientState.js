@@ -7,10 +7,14 @@ class State {
 
   addPlayer(playerId) {
     this.client = playerId
+    console.log('added client');
+    console.log(this.client);
   }
 
   addOpponent(opponentId) {
     this.opponent = opponentId
+    console.log('added opoonent');
+    console.log(this.opponent);
   }
 
 

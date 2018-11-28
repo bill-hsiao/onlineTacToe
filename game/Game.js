@@ -21,13 +21,13 @@ class Game {
     //console.log(this.currentPlayers);
     for (let i = 0; i <= this.currentPlayers.length; i ++) {
       if (list[i] !== this.currentPlayers[i]) {
-        console.log(this.currentPlayers);
+        //console.log(this.currentPlayers);
         disconnectedSocket = this.currentPlayers[i]
         break;
       }
     }
     delete this.players[disconnectedSocket]
-    console.log(`${disconnectedSocket} has disconnected`);
+    //console.log(`${disconnectedSocket} has disconnected`);
     this.currentPlayers = list;
     //console.log(this.currentPlayers, this.players);
   }
@@ -43,6 +43,10 @@ class Game {
       this.turn ++ ;
       this.turn = this.turn % 2;
     }
+  }
+  totalPlayers() {
+    let players = Object.keys(this.players)
+    return players
   }
 }
 
