@@ -1,10 +1,9 @@
-
-
-class Connections {
+class serverController {
   constructor() {
     this.totalConnections = [];
     this.queue = [];
     this.links = [];
+    this.rooms = [];
   }
   addUser(userId) {
     this.totalConnections.push(userId);
@@ -14,9 +13,13 @@ class Connections {
     if (this.queue.length < 2) {
       console.log(this.queue);
     } else if (this.queue.length === 2) {
+      let p1 = this.queue.shift();
+      let p2 = this.queue.shift();
+      let id = [p1.substring(0, 11), p2.substring(0, 11)].join('');
       let link = {
-        p1: this.queue.shift(),
-        p2: this.queue.shift()
+        p1: p1,
+        p2: p2,
+        id: id
       };
       this.queue = this.queue.splice(0, 2)
       console.log(this.queue);
@@ -28,7 +31,6 @@ class Connections {
     let current = this.totalConnections;
     let dc = "";
     let container = "";
-    let temp = "";
     //find the dcuser
     //remove from total connections
     //iterate throguh links
@@ -55,21 +57,24 @@ class Connections {
       }
     }
     for (let i = 0; i < this.links.length; i ++) {
-      container = (dc === this.links[i].p1 ?
-      this.links[i] : dc === this.links[i].p2 ?
-      this.links[i] : null)
-      if (container !== null) {
-        this.links = this.links.splice(i, 1)
-        console.log('found index of container');
-        break
+      if (dc === this.links[i].p1 || dc === this.links[i].p2) {
+        const link = this.links[i];
+        this.links = this.links.splice(i, 1);
+        if (dc === link.p1) {
+          container = link.p2
+          break
+        }
+        if (dc === link.p2) {
+          container = link.p1
+          break
+        }
       }
     }
-    temp = (container.p1 === dc ? container.p2 : container.p1);
-    return temp
+    return container
   }
   lastLink() {
     return this.links[this.links.length - 1]
   }
 }
 
-module.exports = Connections
+module.exports = serverController

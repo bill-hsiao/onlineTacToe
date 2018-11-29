@@ -3,7 +3,7 @@ class Client {
   constructor() {
     this.id = "";
     this.turn = null;
-    this.data = [];
+    this.data = [null, null, null, null, null, null, null, null, null];
   }
   setId(id) {
     this.id = id
@@ -19,89 +19,108 @@ class Client {
   setMove(val) {
     return val
   }
-  updateBoard(idx, turn) {
+  updateBoard(idx, turn, method) {
     this.data[idx] = turn
+    method(idx, turn)
   }
+  getData() {
+    return this.data
+  }
+
+  //test
+
+  passViewData(data, callback) {
+    console.log('passed in data');
+    if (callback) {
+      callback(data);
+    }
+    return data
+  }
+
+
 }
 
 module.exports = Client;
 
 },{}],2:[function(require,module,exports){
-class User {
-  constructor(userId) {
-      this.id = userId;
-      this.name = "";
-      this.first = null;
+// const app = require('./socket')
+function events(app, client) {
+  //add listener to game
+  function init() {
+    let board = [...document.getElementsByTagName('button')]
+    console.log(typeof board);
+    board.forEach(function(button) {
+       button.addEventListener('click', getValue)
+     })
+    console.log(board);
   }
-  // setId(userId) {
-  //   this.id = userId;
-  // }
-  setName(userName) {
-    this.name = userName;
+  function getValue(evt) {
+    let val = evt.target.id;
+    console.log(val);
+    let data = client.getData();
+        render = render.bind(document.body)
+        render(data)
+    client.passViewData(val, app.sendMove(val));
+    //client.passViewData(val, app.sendMove);
+
+    //render
   }
-  setFirst(num) {
-    this.first = (num ? true : false)
+
+
+  function render(data) {
+    let counter = 0;
+    for (let i = 0; i < 3; i ++) {
+      let cells = document.getElementsByClassName(i);
+      for (let j = 0; j < 3; j ++) {
+        let cell = cells[j]
+        console.log(cell.textContent);
+        if (cell.textContent !== data[counter]) {
+          cell.textContent = data[counter];
+          counter++
+        }
+      }
+    }
+
+
+
+  }
+
+
+  function renderElement(id, value) {
+    let temp = document.getElementById(id);
+    temp.innerText = value;
+  }
+  return {
+    renderElement: renderElement,
+    getValue: getValue,
+    init: init
   }
 }
 
-function newUser(userId) {
-  const user = new User(userId)
-  return user
-}
-
-module.exports = newUser;
+module.exports = events
 
 },{}],3:[function(require,module,exports){
-class State {
-  constructor() {
-    this.client = null;
-    this.opponent = null;
-    this.game = [];
-  }
+const Client = require('./Client');
+const socket = io.connect('http://localhost:1234')
+const client = new Client
+const app = require('./socket')(socket, client)
+const events = require('./events');
+const set = events(app, client)
 
-  addPlayer(playerId) {
-    this.client = playerId
-    console.log('added client');
-    console.log(this.client);
-  }
-
-  addOpponent(opponentId) {
-    this.opponent = opponentId
-    console.log('added opoonent');
-    console.log(this.opponent);
-  }
+const nameForms = require('./nameHandler')();
 
 
 
-}
-
-function stateInstance() {
-  const state = new State;
-  return state
-}
-
-module.exports = stateInstance;
-
-},{}],4:[function(require,module,exports){
-const socket = io.connect('http://localhost:1234');
-const app = require('./socket.js')(socket);
 
 
 
-app.init();
 
 
+app.init()
+set.init();
 
-document.getElementById('game_area').addEventListener('click', getValue)
-
-function getValue(evt) {
-  let val = evt.target.id;
-  console.log(val);
-  app.sendMove(val);
-}
-
-
-(function name() {
+},{"./Client":1,"./events":2,"./nameHandler":4,"./socket":5}],4:[function(require,module,exports){
+function name(methods) {
   function output(string) {
     const display = {
         line: document.getElementById('name_output_line'),
@@ -109,7 +128,7 @@ function getValue(evt) {
     }
     display.value = string;
     display.line.textContent = display.value;
-    app.sendName(string);
+    //methods(string);
     return display.value
 
   }
@@ -118,110 +137,91 @@ function getValue(evt) {
     const form = {
       root: document.getElementById('name_input'),
       field: document.getElementById('name_input_field'),
-      submit: document.getElementById('name_input_submit'),
+      // submit: document.getElementById('name_input_submit'),
       value: ""
     }
 
     form.field.addEventListener('keydown', function(evt) {
       form.value = evt.target.value;
       form.field.value = evt.target.value;
+      if (evt.which == 13 || event.keyCode == 13) {
+        (function() {
+          form.root.classList.add('hidden')
+          form.field.classList.add('hidden');
+          output(form.value)
+        })();
+      }
     });
 
-    form.submit.addEventListener('click', function() {
-      form.root.classList.add('hidden')
-      output(form.value)
-    });
+    // form.submit.addEventListener('click', function() {
+    //   form.root.classList.add('hidden')
+    //   output(form.value)
+    // });
 
     return form.value;
   })();
-})();
+}
 
-},{"./socket.js":5}],5:[function(require,module,exports){
-const state = require('./clientState')();
-const user = require('./User.js')();
-const Client = require('./Client');
-const client = new Client
+module.exports = name
 
-
-function controller(socket, data) {
+},{}],5:[function(require,module,exports){
+function controller(socket, client) {
 
   function init() {
-    //socket = io.connect('http://localhost:1234');
-    connect(socket);
+    connect(socket)
   }
-
   function connect(socket) {
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    socket.on('newPlayer', newPlayer);
-    socket.on('receiveUserId', newPlayer);
-    socket.on('turn', getLink);
-    //name moves/controllers
-    socket.on('sendName', sendName);
-    socket.on('setName', setName);
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+    socket.on('joinInvitation', joinRoom)
 
-    socket.on('playerOne', playerOne);
-    socket.on('playerTwo', playerTwo);
-    //game moves/controllers
-    socket.on('sendMove', sendMove);
-
+    //socket.on('joinRoom', joinRoom)
+    socket.on('setClientId', setClientId)
+    socket.on('moveMade', updateMove)
+    socket.on('msg', printMsg)
+    //socket.on('joinInvitation', joinRoom)
 
   }
 
   function onConnect() {
-    if (!socket.id) {
-      return
-    }
-    socket.emit('newUser', socket.id);
-    client.setId(socket.id)
-    socket.emit('clientReady', socket.id);
-  //  socket.on('disconnect', onDisconnect);
+    console.log('connection established')
+    socket.emit('newConnection', socket.id)
   }
-/////fixxx
-  function onDisconnect() {
-    //let user = client(socket.id);
 
-    socket.emit('userLeave');
+  function onDisconnect() {
     socket.emit('disconnect')
   }
+  function joinRoom(link) {
+    //socket.join(room.id, () => console.log(`joined room: ${room.id} `))
+    socket.emit('acceptRoom', socket)
+    socket.emit('linkData', {p1: link.p1, p2: link.p2, id: link.id})
 
-  function getLink(turn) {
-    client.setTurn(turn.turn)
-
+    console.log(socket);
   }
 
-//////fix
-  function newPlayer(user) {
-    state.addPlayer(user.id)
+  function setClientId() {
+    client.setId(socket.id)
+    socket.emit('clientReady', socket.id)
   }
-
-  function sendName(name) {
-    console.log(name);
-    socket.emit('sendName', {id: socket.id, name: name})
+  function sendMove(val) {
+    let response = { idx: val, turn: client.getTurn()}
+    socket.emit('move', response)
   }
-
-  function setName(response) {
-    console.log(response);
-    user.setName(response.name)
-  }
-
-  function playerOne(players) {
-    state.addPlayer(players.p1)
-    state.addOpponent(players.p2)
-  }
-  function playerTwo(players) {
-    state.addPlayer(players.p2)
-    state.addOpponent(players.p1)
-  }
-
-  function sendMove(idx) {
-    let idx1 = client.setMove(idx);
-    let turn = client.getTurn();
-    socket.emit('move', {idx: idx1, turn: turn})
-  }
-  function updateMove() {
+  function updateMove(index) {
+    console.log(index);
+    client.updateBoard(index.move, index.turn)
 
   }
+  function passViewData(data) {
+    console.log('passed in data');
+    sendMove(data);
+  }
+  function printMsg(msg) {
+    console.log(msg);
+  }
+  //emitters only
+
+
 
 
 
@@ -229,14 +229,20 @@ function controller(socket, data) {
     init: init,
     onConnect: onConnect,
     onDisconnect: onDisconnect,
+    joinRoom: joinRoom,
     sendMove: sendMove,
-    sendName: sendName
-
-    //newPlayer: newPlayer
-
+    passViewData: passViewData
   }
+
+
+
+
+
+
+
 }
 
-module.exports = controller;
 
-},{"./Client":1,"./User.js":2,"./clientState":3}]},{},[4]);
+module.exports = controller
+
+},{}]},{},[3]);

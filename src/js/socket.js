@@ -1,88 +1,60 @@
-const state = require('./clientState')();
-const user = require('./User.js')();
-const Client = require('./Client');
-const client = new Client
-
-
-function controller(socket, data) {
+function controller(socket, client) {
 
   function init() {
-    //socket = io.connect('http://localhost:1234');
-    connect(socket);
+    connect(socket)
   }
-
   function connect(socket) {
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-    socket.on('newPlayer', newPlayer);
-    socket.on('receiveUserId', newPlayer);
-    socket.on('turn', getLink);
-    //name moves/controllers
-    socket.on('sendName', sendName);
-    socket.on('setName', setName);
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+    socket.on('joinInvitation', joinRoom)
 
-    socket.on('playerOne', playerOne);
-    socket.on('playerTwo', playerTwo);
-    //game moves/controllers
-    socket.on('sendMove', sendMove);
-
+    //socket.on('joinRoom', joinRoom)
+    socket.on('setClientId', setClientId)
+    socket.on('moveMade', updateMove)
+    socket.on('msg', printMsg)
+    //socket.on('joinInvitation', joinRoom)
 
   }
 
   function onConnect() {
-    if (!socket.id) {
-      return
-    }
-    socket.emit('newUser', socket.id);
-    client.setId(socket.id)
-    socket.emit('clientReady', socket.id);
-  //  socket.on('disconnect', onDisconnect);
+    console.log('connection established')
+    socket.emit('newConnection', socket.id)
   }
-/////fixxx
-  function onDisconnect() {
-    //let user = client(socket.id);
 
-    socket.emit('userLeave');
+  function onDisconnect() {
     socket.emit('disconnect')
   }
+  function joinRoom(link) {
+    //socket.join(room.id, () => console.log(`joined room: ${room.id} `))
+    socket.emit('acceptRoom', socket)
+    socket.emit('linkData', {p1: link.p1, p2: link.p2, id: link.id})
 
-  function getLink(turn) {
-    client.setTurn(turn.turn)
-
+    console.log(socket);
   }
 
-//////fix
-  function newPlayer(user) {
-    state.addPlayer(user.id)
+  function setClientId() {
+    client.setId(socket.id)
+    socket.emit('clientReady', socket.id)
   }
-
-  function sendName(name) {
-    console.log(name);
-    socket.emit('sendName', {id: socket.id, name: name})
+  function sendMove(val) {
+    let response = { idx: val, turn: client.getTurn()}
+    socket.emit('move', response)
   }
-
-  function setName(response) {
-    console.log(response);
-    user.setName(response.name)
-  }
-
-  function playerOne(players) {
-    state.addPlayer(players.p1)
-    state.addOpponent(players.p2)
-  }
-  function playerTwo(players) {
-    state.addPlayer(players.p2)
-    state.addOpponent(players.p1)
-  }
-
-  function sendMove(idx) {
-    let idx1 = client.setMove(idx);
-    let turn = client.getTurn();
-    socket.emit('move', {idx: idx1, turn: turn})
-  }
-  function updateMove() {
+  function updateMove(index) {
+    console.log(index);
+    client.updateBoard(index.move, index.turn)
 
   }
+  function passViewData(data) {
+    console.log('passed in data');
+    sendMove(data);
+  }
+  function printMsg(msg) {
+    console.log(msg);
+  }
+  //emitters only
+
+
 
 
 
@@ -90,12 +62,18 @@ function controller(socket, data) {
     init: init,
     onConnect: onConnect,
     onDisconnect: onDisconnect,
+    joinRoom: joinRoom,
     sendMove: sendMove,
-    sendName: sendName
-
-    //newPlayer: newPlayer
-
+    passViewData: passViewData
   }
+
+
+
+
+
+
+
 }
 
-module.exports = controller;
+
+module.exports = controller

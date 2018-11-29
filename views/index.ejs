@@ -4,6 +4,7 @@
     <title><%= title %></title>
     <link rel='stylesheet' href='/css/style.css' />
   </head>
+    <script src="/socket.io/socket.io.js"></script>
   <body>
     <h1><%= title %></h1>
     <p>Browserify with Socket.io Boilerplate</p>
@@ -17,29 +18,30 @@
         <input type="submit" id="name_input_submit">
       </div>
 
-      <div id="game_area">
-        <table>
+<button id="go">go</button>
+      <div id="game">
+        <!-- <table id="game_area">
           <tr>
-            <td id="0"></td>
-            <td id="1"></td>
-            <td id="2"></td>
+            <td class="td" id="0">null</td>
+            <td class="td" id="1">null</td>
+            <td class="td" id="2">null</td>
           </tr>
           <tr>
-            <td id="3"></td>
-            <td id="4"></td>
-            <td id="5"></td>
+            <td class="td" id="3">null</td>
+            <td class="td" id="4">null</td>
+            <td class="td" id="5">null</td>
           </tr>
           <tr>
-            <td id="6"></td>
-            <td id="7"></td>
-            <td id="8"></td>
+            <td class="td" id="6">null</td>
+            <td class="td" id="7">null</td>
+            <td class="td" id="8">null</td>
           </tr>
-        </table>
+        </table> -->
       </div>
 
     </div>
 
-  <script src="/socket.io/socket.io.js"></script>
+
   <script src="./js/bundle.js"></script>
   </body>
 </html>

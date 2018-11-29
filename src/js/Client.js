@@ -2,7 +2,7 @@ class Client {
   constructor() {
     this.id = "";
     this.turn = null;
-    this.data = [];
+    this.data = [null, null, null, null, null, null, null, null, null];
   }
   setId(id) {
     this.id = id
@@ -18,9 +18,25 @@ class Client {
   setMove(val) {
     return val
   }
-  updateBoard(idx, turn) {
+  updateBoard(idx, turn, method) {
     this.data[idx] = turn
+    method(idx, turn)
   }
+  getData() {
+    return this.data
+  }
+
+  //test
+
+  passViewData(data, callback) {
+    console.log('passed in data');
+    if (callback) {
+      callback(data);
+    }
+    return data
+  }
+
+
 }
 
 module.exports = Client;
