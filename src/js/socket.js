@@ -1,58 +1,69 @@
+const serializer = require('./../../bin/helpers')
+
 function controller(socket, client) {
 
-  function init() {
-    connect(socket)
+  function current(socket) {
+    this.socket = socket;
   }
-  function connect(socket) {
-    socket.on('connect', onConnect)
-    socket.on('disconnect', onDisconnect)
-    socket.on('joinInvitation', joinRoom)
+  function init() {
+    connect()
+  }
+  function connect() {
+    socket.on('connect', onConnect);
+    // socket.on('joinInvitation', joinRoom);
 
-    //socket.on('joinRoom', joinRoom)
-    socket.on('setClientId', setClientId)
-    socket.on('moveMade', updateMove)
-    socket.on('msg', printMsg)
+    socket.on('setClientId', setClientId);
+    socket.on('moveMade', updateMove);
+    socket.on('msg', printMsg);
     //socket.on('joinInvitation', joinRoom)
 
+
   }
 
-  function onConnect() {
+  function onConnect(socket) {
+    current(socket);
     console.log('connection established')
-    socket.emit('newConnection', socket.id)
   }
 
-  function onDisconnect() {
-    socket.emit('disconnect')
-  }
-  function joinRoom(link) {
-    //socket.join(room.id, () => console.log(`joined room: ${room.id} `))
-    socket.emit('acceptRoom', socket)
-    socket.emit('linkData', {p1: link.p1, p2: link.p2, id: link.id})
+  //function onDisconnect() {
+    //socket.emit('disconnect')
+//  }
+  // function joinRoom(link) {
+  //   let response = {p1: link.p1, p2: link.p2, id: link.id};
+    // response = serializer(response);
+    // socket.emit('acceptRoom', socket);
+    // socket.emit('linkData', response)
 
-    console.log(socket);
-  }
+    // console.log(socket);
+  // }
 
   function setClientId() {
     client.setId(socket.id)
-    socket.emit('clientReady', socket.id)
-  }
+    // socket.emit('clientReady', socket.id)
   function sendMove(val) {
-    let response = { idx: val, turn: client.getTurn()}
+    current(socket);
+    val = serializer(val);
+    let turn = serializer(client.getTurn());
+    let response = { idx: val, turn: turn}
+    response = serializer(response)
     socket.emit('move', response)
   }
-  function updateMove(index) {
+  function updateMove(index, cb) {
     console.log(index);
     client.updateBoard(index.move, index.turn)
+    //client.opoonentMove();
+    //updateReceived(socket,  )
 
   }
   function passViewData(data) {
     console.log('passed in data');
     sendMove(data);
   }
-  function printMsg(msg) {
-    console.log(msg);
+  function updateReceived(socket, method) {
+      let data = client.getData();
+      socket.emit('pushUpdate', socket)
+      method(data);
   }
-  //emitters only
 
 
 
@@ -60,11 +71,7 @@ function controller(socket, client) {
 
   return {
     init: init,
-    onConnect: onConnect,
-    onDisconnect: onDisconnect,
-    joinRoom: joinRoom,
-    sendMove: sendMove,
-    passViewData: passViewData
+    onConnect: onConnect
   }
 
 

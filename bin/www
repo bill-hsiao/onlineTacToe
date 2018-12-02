@@ -6,15 +6,15 @@ const http = require('http').Server(app)
 const port = process.env.PORT
 
 const _io = require('socket.io')(http)
-const Connections = require('../game/Connections')
-const Game = require('../game/Game')
-const io = require('../game/io')
+
+
+const Game = require('../lib/game/Game')
+const game = new Game();
+const io = require('../lib/network/io')(_io, game)
 
 
 
-const socket = {
-  io
-}
+
 
 
 
@@ -23,13 +23,5 @@ app.set('port', port);
 
  http.listen(port, function(){
    console.log('listening on *:' + port);
-   init();
- });
-
-function init() {
-  const connections = new Connections
-  let game = new Game
-
-  socket.io = io(_io, connections, game)
-  socket.io.init()
-}
+   io.init()
+ })

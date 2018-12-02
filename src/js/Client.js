@@ -25,7 +25,12 @@ class Client {
   getData() {
     return this.data
   }
-
+  opponentMove(method) {
+    method()
+  }
+  pushUpdate() {
+    
+  }
   //test
 
   passViewData(data, callback) {

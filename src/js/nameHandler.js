@@ -25,7 +25,7 @@ function name(methods) {
       if (evt.which == 13 || event.keyCode == 13) {
         (function() {
           form.root.classList.add('hidden')
-          form.field.classList.add('hidden');
+          form.field.classList.add('hidden')
           output(form.value)
         })();
       }

@@ -2,8 +2,8 @@
 function events(app, client) {
   //add listener to game
   function init() {
-    let board = [...document.getElementsByTagName('button')]
-    console.log(typeof board);
+    let board = [...document.getElementsByClassName('game_unit')]
+    //console.log(typeof board);
     board.forEach(function(button) {
        button.addEventListener('click', getValue)
      })
@@ -16,6 +16,7 @@ function events(app, client) {
         render = render.bind(document.body)
         render(data)
     client.passViewData(val, app.sendMove(val));
+    app.sendMove(val);
     //client.passViewData(val, app.sendMove);
 
     //render
@@ -23,21 +24,12 @@ function events(app, client) {
 
 
   function render(data) {
-    let counter = 0;
-    for (let i = 0; i < 3; i ++) {
-      let cells = document.getElementsByClassName(i);
-      for (let j = 0; j < 3; j ++) {
-        let cell = cells[j]
-        console.log(cell.textContent);
-        if (cell.textContent !== data[counter]) {
-          cell.textContent = data[counter];
-          counter++
-        }
+    let board = [...document.getElementsByClassName('game_unit')]
+    for (let i = 0; i < 9; i ++) {
+      if (board[i].innerText !== data[i]) {
+        board[i].innerText = data[i]
       }
     }
-
-
-
   }
 
 
@@ -48,6 +40,7 @@ function events(app, client) {
   return {
     renderElement: renderElement,
     getValue: getValue,
+    render: render,
     init: init
   }
 }

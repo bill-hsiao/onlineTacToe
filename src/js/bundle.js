@@ -1,4 +1,9 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+module.exports = function(obj) {
+  return JSON.parse(JSON.stringify(obj))
+}
+
+},{}],2:[function(require,module,exports){
 class Client {
   constructor() {
     this.id = "";
@@ -26,7 +31,12 @@ class Client {
   getData() {
     return this.data
   }
-
+  opponentMove(method) {
+    method()
+  }
+  pushUpdate() {
+    
+  }
   //test
 
   passViewData(data, callback) {
@@ -42,13 +52,13 @@ class Client {
 
 module.exports = Client;
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 // const app = require('./socket')
 function events(app, client) {
   //add listener to game
   function init() {
-    let board = [...document.getElementsByTagName('button')]
-    console.log(typeof board);
+    let board = [...document.getElementsByClassName('game_unit')]
+    //console.log(typeof board);
     board.forEach(function(button) {
        button.addEventListener('click', getValue)
      })
@@ -61,6 +71,7 @@ function events(app, client) {
         render = render.bind(document.body)
         render(data)
     client.passViewData(val, app.sendMove(val));
+    app.sendMove(val);
     //client.passViewData(val, app.sendMove);
 
     //render
@@ -68,21 +79,12 @@ function events(app, client) {
 
 
   function render(data) {
-    let counter = 0;
-    for (let i = 0; i < 3; i ++) {
-      let cells = document.getElementsByClassName(i);
-      for (let j = 0; j < 3; j ++) {
-        let cell = cells[j]
-        console.log(cell.textContent);
-        if (cell.textContent !== data[counter]) {
-          cell.textContent = data[counter];
-          counter++
-        }
+    let board = [...document.getElementsByClassName('game_unit')]
+    for (let i = 0; i < 9; i ++) {
+      if (board[i].innerText !== data[i]) {
+        board[i].innerText = data[i]
       }
     }
-
-
-
   }
 
 
@@ -93,13 +95,14 @@ function events(app, client) {
   return {
     renderElement: renderElement,
     getValue: getValue,
+    render: render,
     init: init
   }
 }
 
 module.exports = events
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 const Client = require('./Client');
 const socket = io.connect('http://localhost:1234')
 const client = new Client
@@ -119,7 +122,7 @@ const nameForms = require('./nameHandler')();
 app.init()
 set.init();
 
-},{"./Client":1,"./events":2,"./nameHandler":4,"./socket":5}],4:[function(require,module,exports){
+},{"./Client":2,"./events":3,"./nameHandler":5,"./socket":6}],5:[function(require,module,exports){
 function name(methods) {
   function output(string) {
     const display = {
@@ -147,7 +150,7 @@ function name(methods) {
       if (evt.which == 13 || event.keyCode == 13) {
         (function() {
           form.root.classList.add('hidden')
-          form.field.classList.add('hidden');
+          form.field.classList.add('hidden')
           output(form.value)
         })();
       }
@@ -164,58 +167,76 @@ function name(methods) {
 
 module.exports = name
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
+const serializer = require('./../../bin/helpers')
+
 function controller(socket, client) {
 
-  function init() {
-    connect(socket)
+  function current(socket) {
+    this.socket = socket;
   }
-  function connect(socket) {
-    socket.on('connect', onConnect)
-    socket.on('disconnect', onDisconnect)
-    socket.on('joinInvitation', joinRoom)
+  function init() {
+    connect()
+  }
+  function connect() {
+    socket.on('connect', onConnect);
+    // socket.on('joinInvitation', joinRoom);
 
-    //socket.on('joinRoom', joinRoom)
-    socket.on('setClientId', setClientId)
-    socket.on('moveMade', updateMove)
-    socket.on('msg', printMsg)
+    socket.on('setClientId', setClientId);
+    socket.on('moveMade', updateMove);
+    socket.on('msg', printMsg);
     //socket.on('joinInvitation', joinRoom)
 
+
   }
 
-  function onConnect() {
+  function onConnect(socket) {
+    current(socket);
     console.log('connection established')
     socket.emit('newConnection', socket.id)
   }
 
-  function onDisconnect() {
-    socket.emit('disconnect')
-  }
-  function joinRoom(link) {
-    //socket.join(room.id, () => console.log(`joined room: ${room.id} `))
-    socket.emit('acceptRoom', socket)
-    socket.emit('linkData', {p1: link.p1, p2: link.p2, id: link.id})
+  //function onDisconnect() {
+    //socket.emit('disconnect')
+//  }
+  // function joinRoom(link) {
+  //   let response = {p1: link.p1, p2: link.p2, id: link.id};
+    // response = serializer(response);
+    // socket.emit('acceptRoom', socket);
+    // socket.emit('linkData', response)
 
-    console.log(socket);
-  }
+    // console.log(socket);
+  // }
 
   function setClientId() {
     client.setId(socket.id)
-    socket.emit('clientReady', socket.id)
+    // socket.emit('clientReady', socket.id)
   }
   function sendMove(val) {
-    let response = { idx: val, turn: client.getTurn()}
+    current(socket);
+    val = serializer(val);
+    let turn = serializer(client.getTurn());
+    let response = { idx: val, turn: turn}
+    response = serializer(response)
     socket.emit('move', response)
   }
-  function updateMove(index) {
+  function updateMove(index, cb) {
     console.log(index);
     client.updateBoard(index.move, index.turn)
+    //client.opoonentMove();
+    //updateReceived(socket,  )
 
   }
   function passViewData(data) {
     console.log('passed in data');
     sendMove(data);
   }
+  function updateReceived(socket, method) {
+      let data = client.getData();
+      socket.emit('pushUpdate', socket)
+      method(data);
+  }
+
   function printMsg(msg) {
     console.log(msg);
   }
@@ -227,11 +248,8 @@ function controller(socket, client) {
 
   return {
     init: init,
-    onConnect: onConnect,
-    onDisconnect: onDisconnect,
-    joinRoom: joinRoom,
-    sendMove: sendMove,
-    passViewData: passViewData
+    onConnect: onConnect
+    // joinRoom: joinRoom
   }
 
 
@@ -245,4 +263,4 @@ function controller(socket, client) {
 
 module.exports = controller
 
-},{}]},{},[3]);
+},{"./../../bin/helpers":1}]},{},[4]);
