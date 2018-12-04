@@ -9,8 +9,11 @@ const _io = require('socket.io')(http)
 
 
 const Game = require('../lib/game/Game')
-const game = new Game();
-const io = require('../lib/network/io')(_io, game)
+const newGame = (id) => {
+  let instance = new Game(id)
+  return instance
+}
+const io = require('../lib/network/io')(_io, newGame)
 
 
 
