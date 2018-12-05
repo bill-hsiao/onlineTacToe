@@ -3,17 +3,14 @@
 const app = require('../app')
 const debug = require('debug')('test:server')
 const http = require('http').Server(app)
-const port = process.env.PORT
-
+const port = '3000'
 const _io = require('socket.io')(http)
 
 
-const Game = require('../lib/game/Game')
-const newGame = (id) => {
-  let instance = new Game(id)
-  return instance
-}
-const io = require('../lib/network/io')(_io, newGame)
+const Game = require('./../lib/Game')
+const game = new Game
+
+const io = require('./../lib/io')(_io, game)
 
 
 

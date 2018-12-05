@@ -1,18 +1,54 @@
-const Client = require('./Client');
-const socket = io.connect('http://localhost:1234')
-const client = new Client
-const app = require('./socket')(socket, client)
-//const events = require('./events');
-//const set = events(app, client)
+const socket = io.connect('http://localhost:3000')
+const app = require('./sockets')(socket)
 
-const nameForms = require('./nameHandler')();
-
-
-
-
-
-
-
+const state = {
+  view: null
+}
 
 app.init()
-//set.init();
+
+gameUnit.init()
+
+
+const gameUnit = {
+  init: init,
+  getValue: getValue
+}
+
+function init() {
+  let board = [...document.getElementsByClassName('game_unit')]
+  //console.log(typeof board);
+  board.forEach(function(button) {
+     button.addEventListener('click', getValue)
+   })
+  console.log(board);
+}
+function getValue(evt) {
+  let val = evt.target.id;
+  //app.updatePlayer()
+  app.buttonValue(val)
+  updateElements() {
+
+  }
+  //client.passViewData(val, app.sendMove);
+
+  //render
+}
+function updateElements()
+//
+// function init() {
+//   let board = [...document.getElementsByClassName('game_unit')]
+//   //console.log(typeof board);
+//   board.forEach(function(button) {
+//      button.addEventListener('click', getValue)
+//    })
+//   console.log(board);
+// }
+// function getValue(evt) {
+//   let val = evt.target.id;
+//   //app.updatePlayer()
+//   app.buttonValue(val)
+//   //client.passViewData(val, app.sendMove);
+//
+//   //render
+// }
